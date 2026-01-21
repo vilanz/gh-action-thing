@@ -1,0 +1,31 @@
+name: Submit
+
+on:
+  workflow_dispatch:
+
+jobs:
+  submit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python with uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Submit application
+        env:
+          PAYLOAD_NAME: ${{ vars.PAYLOAD_NAME }}
+          PAYLOAD_EMAIL: ${{ vars.PAYLOAD_EMAIL }}
+          PAYLOAD_RESUME_LINK: ${{ vars.PAYLOAD_RESUME_LINK }}
+          PAYLOAD_REPOSITORY_LINK: "https://github.com/${{ github.repository }}"
+          PAYLOAD_WEBHOOK_SECRET: ${{ secrets.PAYLOAD_WEBHOOK_SECRET }}
+          PAYLOAD_TARGET_URL: ${{ vars.PAYLOAD_TARGET_URL }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+        run: uv run python main.py
